@@ -304,12 +304,36 @@ class _MyHomePageState extends State<MyHomePage> {
     double totalTasaBCV = bcvPrice != 0.0 ? subtotalBS / bcvPrice : 0.0;
     double totalGeneral = totalUSD + totalTasaBCV;
 
+    //Color blue = Color.fromARGB(1, 26, 28, 100);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lista de Productos'),
+        backgroundColor: Color(0xFF1a1c64),
+        title: Text(
+          'Venimeca Gastos',
+          style: TextStyle(
+            color: Colors.white, // Adjust text color as needed
+            fontFamily: 'Arial',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
       body: Column(
         children: [
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 10),
+            child: Row(
+              children: [
+                const SizedBox(width: 16.0),
+                Text(
+                  'Lista de productos',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               itemCount: products.length,
@@ -347,7 +371,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           Container(
-            color: Colors.grey[200],
+            //color: Colors.grey[200],
+            color: Color(0xFF1a1c64),
             padding: EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -360,13 +385,27 @@ class _MyHomePageState extends State<MyHomePage> {
                     _recalculateTotals();
                   },
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: 'Precio del BCV'),
+                  decoration: InputDecoration(
+                    labelText: 'Precio del BCV',
+                    labelStyle: TextStyle(color: Colors.white),
+                    hintText: 'Ingrese el precio',
+                    hintStyle: TextStyle(color: Colors.grey[500]),
+                  ),
+                  style: TextStyle(color: Colors.white),
                 ),
-                Text('Subtotal en BsS: ${subtotalBS.toStringAsFixed(2)}'),
+                Text('Subtotal en BsS: ${subtotalBS.toStringAsFixed(2)}',
+                    style: TextStyle(color: Colors.white)),
                 Text(
-                    'Subtotal de productos en \$: ${subtotalUSD.toStringAsFixed(2)}'),
-                Text('Total a Tasa BCV: ${totalTasaBCV.toStringAsFixed(2)}'),
-                Text('Total General: ${totalGeneral.toStringAsFixed(2)}'),
+                    'Subtotal de productos en \$: ${subtotalUSD.toStringAsFixed(2)}',
+                    style: TextStyle(color: Colors.white)),
+                Text(
+                  'Total a Tasa BCV: ${totalTasaBCV.toStringAsFixed(2)}',
+                  style: TextStyle(color: Colors.white),
+                ),
+                Text(
+                  'Total General: ${totalGeneral.toStringAsFixed(2)}',
+                  style: TextStyle(color: Colors.white),
+                ),
               ],
             ),
           ),
@@ -461,6 +500,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Icon(Icons.add),
       ),
       bottomNavigationBar: Container(
+        padding: EdgeInsets.zero,
         width: double.infinity,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -471,7 +511,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero,
                   ),
-                  backgroundColor: Colors.blue,
+                  //backgroundColor: Color(0xFF1a1c64),
+                  backgroundColor: Color.fromARGB(255, 221, 88, 0),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                       vertical: 20.0, horizontal: 16.0),
