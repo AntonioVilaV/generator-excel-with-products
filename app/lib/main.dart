@@ -50,8 +50,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late String currency = 'USD';
   bool cargaMasiva = false;
 
-  final TextEditingController _descriptionController =
-        TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
 
   void _exportToExcel() async {
@@ -77,6 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
         double total = product.amount;
         if (product.currency == 'BS') {
           total = product.amount / bcvPrice;
+          total = double.parse(total.toStringAsFixed(2));
         }
         sheet.appendRow([
           TextCellValue(product.description),
@@ -165,7 +165,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       this.description = '';
       this.amount = 0.0;
-      this.currency = 'USD';
+      this.currency = currency;
     });
   }
 
@@ -276,6 +276,15 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _clearProducts() {
+    setState(() {
+      products.clear();
+      totalUSD = 0.0;
+      totalGeneral = 0.0;
+    });
+    
+  }
+
   void _recalculateTotals() {
     double subtotalBS = 0.0;
     double subtotalUSD = 0.0;
@@ -308,8 +317,6 @@ class _MyHomePageState extends State<MyHomePage> {
     double totalTasaBCV = bcvPrice != 0.0 ? subtotalBS / bcvPrice : 0.0;
     double totalGeneral = totalUSD + totalTasaBCV;
 
-    
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF1a1c64),
@@ -325,14 +332,25 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           Container(
-            padding: EdgeInsets.symmetric(vertical: 10),
+            padding: EdgeInsets.all(16),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const SizedBox(width: 16.0),
                 Text(
                   'Lista de productos',
                   style: TextStyle(
                     fontSize: 18.0,
+                  ),
+                ),
+                TextButton(
+                  child: Text('Limpiar lista'),
+                  onPressed: () {
+                    _clearProducts();
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 221, 88, 0),
+                    foregroundColor: Colors.white,
                   ),
                 ),
               ],
@@ -375,7 +393,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
           Container(
-            //color: Colors.grey[200],
             color: Color(0xFF1a1c64),
             padding: EdgeInsets.all(16),
             child: Column(
@@ -517,7 +534,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.zero,
                   ),
-                  //backgroundColor: Color(0xFF1a1c64),
                   backgroundColor: Color.fromARGB(255, 221, 88, 0),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
