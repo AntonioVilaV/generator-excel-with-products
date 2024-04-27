@@ -50,6 +50,10 @@ class _MyHomePageState extends State<MyHomePage> {
   late String currency = 'USD';
   bool cargaMasiva = false;
 
+  final TextEditingController _descriptionController =
+        TextEditingController();
+  final TextEditingController _amountController = TextEditingController();
+
   void _exportToExcel() async {
     if (products.isEmpty) {
       _showAlertMessage(1, 'No hay productos para exportar');
@@ -137,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
         backgroundColor: Colors.yellow,
-        textColor: Colors.white,
+        textColor: Colors.black,
         fontSize: 16.0,
       );
     }
@@ -154,15 +158,15 @@ class _MyHomePageState extends State<MyHomePage> {
         totalUSD += amount;
       }
       _recalculateTotals();
+      _descriptionController.clear();
+      _amountController.clear();
     });
-    if (!cargaMasiva) {
-      // Limpiar campos solo si no está en modo carga masiva
-      setState(() {
-        this.description = '';
-        this.amount = 0.0;
-        this.currency = 'USD';
-      });
-    }
+
+    setState(() {
+      this.description = '';
+      this.amount = 0.0;
+      this.currency = 'USD';
+    });
   }
 
   void _editProduct(int index) {
@@ -304,7 +308,7 @@ class _MyHomePageState extends State<MyHomePage> {
     double totalTasaBCV = bcvPrice != 0.0 ? subtotalBS / bcvPrice : 0.0;
     double totalGeneral = totalUSD + totalTasaBCV;
 
-    //Color blue = Color.fromARGB(1, 26, 28, 100);
+    
 
     return Scaffold(
       appBar: AppBar(
@@ -439,10 +443,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         TextField(
                           decoration: InputDecoration(labelText: 'Descripción'),
                           onChanged: (value) => description = value,
+                          controller: _descriptionController,
                         ),
                         TextField(
                           decoration: InputDecoration(labelText: 'Monto'),
                           keyboardType: TextInputType.number,
+                          controller: _amountController,
                           onChanged: (value) =>
                               amount = double.tryParse(value) ?? 0.0,
                         ),
