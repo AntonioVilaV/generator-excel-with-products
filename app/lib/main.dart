@@ -3,7 +3,7 @@ import 'package:excel/excel.dart';
 import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
-
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(MyApp());
@@ -48,59 +48,62 @@ class _MyHomePageState extends State<MyHomePage> {
   late String description;
   late double amount;
   late String currency = 'USD';
-  bool cargaMasiva = false; // Nuevo estado para controlar la carga masiva
+  bool cargaMasiva = false;
 
   void _exportToExcel() async {
-    var excel = Excel.createExcel();
+    if (products.isEmpty) {
+      _showAlertMessage(1, 'No hay productos para exportar');
+    } else {
+      var now = DateTime.now();
+      var formatter = DateFormat('dd-MM-yyyy H-m-s');
+      String formattedDate = formatter.format(now);
 
-    var sheet = excel.sheets[excel.getDefaultSheet() as String]!;
+      var name_file = "cotizacion ${formattedDate}.xlsx";
 
-    CellStyle cellStyle = CellStyle(bold: true);
-
-    var headDescription = sheet.cell(CellIndex.indexByString("A1"));
-    headDescription.value = TextCellValue("Description");
-    headDescription.cellStyle = cellStyle;
-    var headAmount = sheet.cell(CellIndex.indexByString("B1"));
-    headAmount.value = TextCellValue("monto");
-    headAmount.cellStyle = cellStyle;
-
-    for (var product in products) {
-      double total = product.amount;
-      if (product.currency == 'BS') {
-        total = product.amount / bcvPrice;
+      var excel = Excel.createExcel();
+      var sheet = excel.sheets[excel.getDefaultSheet() as String]!;
+      CellStyle cellStyle = CellStyle(bold: true);
+      var headDescription = sheet.cell(CellIndex.indexByString("A1"));
+      headDescription.value = TextCellValue("Description");
+      headDescription.cellStyle = cellStyle;
+      var headAmount = sheet.cell(CellIndex.indexByString("B1"));
+      headAmount.value = TextCellValue("monto");
+      headAmount.cellStyle = cellStyle;
+      for (var product in products) {
+        double total = product.amount;
+        if (product.currency == 'BS') {
+          total = product.amount / bcvPrice;
+        }
+        sheet.appendRow([
+          TextCellValue(product.description),
+          TextCellValue('${total.toString()}\$')
+        ]);
       }
-
       sheet.appendRow([
-        TextCellValue(product.description),
-        TextCellValue('${total.toString()}\$')
+        TextCellValue("Total"),
+        TextCellValue('${totalGeneral.toString()}\$')
       ]);
-    }
-    sheet.appendRow([
-      TextCellValue("Total"),
-      TextCellValue('${totalGeneral.toString()}\$')
-    ]);
-
-    var fileBytes = excel.save();
-
-    try {
       var fileBytes = excel.save();
-      String directory = '/storage/emulated/0/Documents/';
-      if (Platform.isIOS) {
-        Directory dir = await getApplicationDocumentsDirectory();
-        directory = dir.path;
+      try {
+        var fileBytes = excel.save();
+        String path = '/storage/emulated/0/Documents/';
+        if (Platform.isIOS) {
+          Directory dir = await getApplicationDocumentsDirectory();
+          path = dir.path;
+        }
+        String absoulte_path_file = '${path}/${name_file}';
+        if (fileBytes != null) {
+          File(absoulte_path_file)
+            ..createSync(recursive: true)
+            ..writeAsBytesSync(fileBytes);
+          _showExportConfirmation(true, path);
+        } else {
+          throw Exception('Error al generar el archivo');
+        }
+      } catch (e) {
+        print(e);
+        _showExportConfirmation(false, e.toString());
       }
-      
-      if (fileBytes != null) {
-        File('${directory}/cotizacion.xlsx')
-          ..createSync(recursive: true)
-          ..writeAsBytesSync(fileBytes);
-        _showExportConfirmation(true, directory);
-      } else {
-        throw Exception('Error al generar el archivo');
-      }
-    } catch (e) {
-      print(e);
-      _showExportConfirmation(false, e.toString());
     }
   }
 
@@ -120,6 +123,20 @@ class _MyHomePageState extends State<MyHomePage> {
         toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
+  }
+
+  void _showAlertMessage(int type, String message) {
+    int WARNING = 1;
+    if (type == WARNING) {
+      Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.yellow,
         textColor: Colors.white,
         fontSize: 16.0,
       );
@@ -445,21 +462,32 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomNavigationBar: Container(
         width: double.infinity,
-        color: Colors.blue,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: _exportToExcel,
-                  icon: Icon(Icons.download),
-                  label: Text('Exportar'),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                  ),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 20.0, horizontal: 16.0),
+                ),
+                onPressed: _exportToExcel,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.file_download),
+                    const SizedBox(width: 8.0),
+                    const Text('Exportar'),
+                  ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
